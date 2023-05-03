@@ -1,65 +1,67 @@
-﻿
-using System;
+﻿using System;
+using System.Collections.Generic;
 
 namespace dream
 {
-    internal class Dream
+    public class Dream
     {
-        public char[,] Maze { get; set; } // Лабиринт
-
-        public char[,] Cheapest { get; set; } // Самый дешёвый путь
-
-        public int R { get; set; } // Стоимость красного ключа
-
-        public int G { get; set; } // Стоимость зелёного ключа
-
-        public int B { get; set; } // Стоимость синего ключа
-
-        public int Y { get; set; } // Стоимость жёлтого ключа
-
+        private char[,] maze;
+        private int r, g, b, y;
+        private HashSet<Node> nodes = new HashSet<Node>();
+        public char[,] Maze
+        {
+            get { return maze; } set { maze = value; } 
+        }
+        public int R
+        {
+            get { return r; } set { r = value; }
+        }
+        public int G
+        {
+            get { return g; } set { g = value; }
+        }
+        public int B
+        {
+            get { return b; } set { b = value; }
+        }
+        public int Y
+        {
+            get { return y; } set { y = value; }
+        }
+        public HashSet<Node> Nodes
+        {
+            get { return nodes; }
+            set { nodes = value; }
+        }
+        public Dream() { Input(); }
+        public Dream(char[,] maze) { Maze = maze; }
+        // Вывести лабиринт
         public void PrintMaze()
         {
             for (int row = 0; row < Maze.GetUpperBound(0) + 1; row++)
             {
                 for (int column = 0; column < Maze.GetUpperBound(1) + 1; column++)
                 {
-                    if (Maze[row, column] == 'R')
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                    }
-                    else if (Maze[row, column] == 'G')
-                    {
-                        Console.ForegroundColor = ConsoleColor.Green;
-                    }
-                    else if (Maze[row, column] == 'B')
-                    {
-                        Console.ForegroundColor = ConsoleColor.Blue;
-                    }
-                    else if (Maze[row, column] == 'Y')
-                    {
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                    }
-                    else if (Maze[row, column] == 'X')
-                    {
-                        Console.ForegroundColor = ConsoleColor.Black;
-                        Console.BackgroundColor = ConsoleColor.White;
-                    }
                     Console.Write($"{Maze[row, column]} ");
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.BackgroundColor = ConsoleColor.Black;
                 }
                 Console.WriteLine();
             }
         }
-        public void PrintMaze(int rowIndex, int columnIndex)
+        // Вывести лабиринт с выделенным элементом
+        public void PrintMaze(int row_index, int column_index)
         {
             for (int row = 0; row < Maze.GetUpperBound(0) + 1; row++)
             {
                 for (int column = 0; column < Maze.GetUpperBound(1) + 1; column++)
                 {
-                    if (row == rowIndex && column == columnIndex)
+                    if (row == row_index && column == column_index)
                     {
-                        if (Maze[row, column] == 'R')
+                        if (Maze[row, column] == 'X')
+                        {
+                            Console.BackgroundColor = ConsoleColor.DarkGray;
+                            Console.ForegroundColor = ConsoleColor.Black;
+                        }
+                        else if (Maze[row, column] == 'R')
                         {
                             Console.BackgroundColor = ConsoleColor.Red;
                         }
@@ -76,21 +78,20 @@ namespace dream
                             Console.BackgroundColor = ConsoleColor.Yellow;
                             Console.ForegroundColor = ConsoleColor.Black;
                         }
-                        else if (Maze[row, column] == 'X')
-                        {
-                            Console.ForegroundColor = ConsoleColor.DarkGray;
-                            Console.BackgroundColor = ConsoleColor.Gray;
-                        }
                         else
                         {
                             Console.BackgroundColor = ConsoleColor.White;
                             Console.ForegroundColor = ConsoleColor.Black;
                         }
-                        Console.Write($"{Maze[row, column]} ");
                     }
                     else
                     {
-                        if (Maze[row, column] == 'R')
+                        if (Maze[row, column] == 'X')
+                        {
+                            Console.BackgroundColor = ConsoleColor.White;
+                            Console.ForegroundColor = ConsoleColor.Black;
+                        }
+                        else if (Maze[row, column] == 'R')
                         {
                             Console.ForegroundColor = ConsoleColor.Red;
                         }
@@ -106,13 +107,8 @@ namespace dream
                         {
                             Console.ForegroundColor = ConsoleColor.Yellow;
                         }
-                        else if (Maze[row, column] == 'X')
-                        {
-                            Console.ForegroundColor = ConsoleColor.Black;
-                            Console.BackgroundColor = ConsoleColor.White;
-                        }
-                        Console.Write($"{Maze[row, column]} ");
                     }
+                    Console.Write($"{Maze[row, column]} ");
                     Console.BackgroundColor = ConsoleColor.Black;
                     Console.ForegroundColor = ConsoleColor.White;
                 }
@@ -121,7 +117,6 @@ namespace dream
         }
         public void Input()
         {
-            bool s = false, e = false; // Есть ли в лабиринте начальная точка и выход
             // Считывание сторон лабиринта
             while (true)
             {
@@ -136,31 +131,31 @@ namespace dream
                     Console.WriteLine("Ошибка ввода! Попробуйте ещё раз");
                 }
                 sides = sides.Trim();
-                string trimSides = "";
-                bool spaceWritten = false;
+                string trim_sides = "";
+                bool space_written = false;
                 foreach (char character in sides)
                 {
                     if (character == ' ')
                     {
-                        if (!spaceWritten)
+                        if (!space_written)
                         {
-                            trimSides += character;
-                            spaceWritten = true;
+                            trim_sides += character;
+                            space_written = true;
                         }
                     }
                     else
                     {
-                        trimSides += character;
-                        spaceWritten = false;
+                        trim_sides += character;
+                        space_written = false;
                     }
                 }
-                string[] splitSides = trimSides.Split(' ');
-                if (splitSides.Length != 2)
+                string[] split_sides = trim_sides.Split(' ');
+                if (split_sides.Length != 2)
                 {
                     Console.WriteLine("Ошибка ввода! Попробуйте ещё раз");
                     continue;
                 }
-                Maze = new char[(int.Parse(splitSides[0])), (int.Parse(splitSides[1]))];
+                maze = new char[(int.Parse(split_sides[0])), (int.Parse(split_sides[1]))];
                 break;
             }
 
@@ -178,34 +173,34 @@ namespace dream
                     Console.WriteLine("Ошибка ввода! Попробуйте ещё раз");
                 }
                 keys = keys.Trim();
-                string trimKeys = "";
-                bool spaceWritten = false;
+                string trim_keys = "";
+                bool space_written = false;
                 foreach (char character in keys)
                 {
                     if (character == ' ')
                     {
-                        if (!spaceWritten)
+                        if (!space_written)
                         {
-                            trimKeys += character;
-                            spaceWritten = true;
+                            trim_keys += character;
+                            space_written = true;
                         }
                     }
                     else
                     {
-                        trimKeys += character;
-                        spaceWritten = false;
+                        trim_keys += character;
+                        space_written = false;
                     }
                 }
-                string[] splitKeys = trimKeys.Split(' ');
-                if (splitKeys.Length != 4)
+                string[] split_keys = trim_keys.Split(' ');
+                if (split_keys.Length != 4)
                 {
                     Console.WriteLine("Ошибка ввода! Попробуйте ещё раз");
                     continue;
                 }
-                R = int.Parse(splitKeys[0]);
-                G = int.Parse(splitKeys[1]);
-                B = int.Parse(splitKeys[2]);
-                Y = int.Parse(splitKeys[3]);
+                R = int.Parse(split_keys[0]);
+                G = int.Parse(split_keys[1]);
+                B = int.Parse(split_keys[2]);
+                Y = int.Parse(split_keys[3]);
                 break;
             }
             Console.Clear();
@@ -219,11 +214,14 @@ namespace dream
             }
 
             // Считывание лабиринта
-            int row = Maze.GetUpperBound(0) + 1, column = Maze.GetUpperBound(1) + 1;
+            bool s = false, e = false; // Есть ли в лабиринте начальная точка и выход
+            int row = Maze.GetUpperBound(0) + 1, column = Maze.GetUpperBound(1) + 1; // Количество строк и столбцов
             Console.CursorVisible = false;
             int rowIndex = 0, columnIndex = 0;
-            ConsoleKeyInfo key = new ConsoleKeyInfo();
-            while (key.Key != ConsoleKey.Enter)
+            char value;
+            bool error_walls = true, error_se = true;
+            ConsoleKeyInfo key;
+            while (error_walls || error_se)
             {
                 Console.WriteLine("Заполните лабиринт.");
                 Console.WriteLine("Используйте кнопки стрелочки, чтобы перемещаться по элементам лабиринта.");
@@ -233,13 +231,19 @@ namespace dream
                 Console.WriteLine("G – зелёная дверь");
                 Console.WriteLine("B – синяя дверь");
                 Console.WriteLine("Y – жёлтая дверь");
-                Console.WriteLine("S – начальная позиция (только 1)");
+                Console.WriteLine("S – начальная позиция");
                 Console.WriteLine("X – стена");
-                Console.WriteLine("E – выход (только 1)");
-                Console.WriteLine(". (точка) – свободный элемент (коридор)\n\n");
+                Console.WriteLine("E – выход");
+                Console.WriteLine(". (точка) – свободный элемент (коридор)");
+                if (error_walls) Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("ВАЖНО! Лабиринт должен быть окружён стенами");
+                Console.ForegroundColor = ConsoleColor.White;
+                if (error_se) Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("ВАЖНО! В лабиринте обязательно должны присутствовать начальная позиция и выход\n\n");
+                Console.ForegroundColor = ConsoleColor.White;
                 PrintMaze(rowIndex, columnIndex);
                 key = Console.ReadKey(true);
-                var value = Char.ToUpper(key.KeyChar);
+                value = Char.ToUpper(key.KeyChar);
                 if (key.Key == ConsoleKey.UpArrow)
                 {
                     if (rowIndex != 0) rowIndex--;
@@ -255,24 +259,22 @@ namespace dream
                     if (columnIndex != column - 1) columnIndex++;
                     else columnIndex = 0;
                 }
-                else if (key.Key == ConsoleKey.LeftArrow)
+                else if ( key.Key == ConsoleKey.LeftArrow)
                 {
                     if (columnIndex != 0) columnIndex--;
                     else columnIndex = column - 1;
                 }
                 else if (key.Key == ConsoleKey.Backspace)
                 {
-                    if (Maze[rowIndex, columnIndex] == 'E') e = false;
-                    else if (Maze[rowIndex, columnIndex] == 'S') s = false;
                     Maze[rowIndex, columnIndex] = '.';
                 }
-                else if (value == 'S' ||
-                         value == 'E' ||
-                         value == 'R' ||
-                         value == 'Y' ||
-                         value == 'X' ||
-                         value == 'B' ||
-                         value == '.' ||
+                else if (value == 'S' || 
+                         value == 'E' || 
+                         value == 'R' || 
+                         value == 'Y' || 
+                         value == 'X' || 
+                         value == 'B' || 
+                         value == '.' || 
                          value == 'G')
                 {
                     if (value == 'E')
@@ -300,27 +302,158 @@ namespace dream
                         Maze[rowIndex, columnIndex] = value;
                     }
                 }
+                else if (key.Key == ConsoleKey.Enter)
+                {
+                    error_se = !s || !e;
+                    error_walls = false;
+                    for (int i = 0; i < row; i++)
+                    {
+                        if (Maze[i, 0] != 'X' || Maze[i, column - 1] != 'X')
+                        {
+                            error_walls = true;
+                            break;
+                        }
+                    }
+                    if (!error_walls)
+                    {
+                        for (int i = 0; i < column; i++)
+                        {
+                            if (Maze[0, i] != 'X' || Maze[row - 1, i] != 'X')
+                            {
+                                error_walls = true;
+                                break;
+                            }
+                        }
+                    }
+                }
                 Console.Clear();
             }
         }
 
-        public void Search()
+        // Метод, который сканирует в лабиринте узлы, рёбра и двери
+        public void ScanMaze()
         {
-            int[][] path = new int[Maze.GetUpperBound(0)][];
-            for (int i = 0; i < Maze.GetUpperBound(0); i++)
+            for (int i = 0; i < Maze.GetUpperBound(0) + 1; i++)
             {
-                path[i] = new int[Maze.GetUpperBound(1)];
+                for (int j = 0; j < Maze.GetUpperBound(1) + 1; j++)
+                {
+                    char value = Maze[i, j];
+                    if (value == 'X') continue;
+                    else
+                    {
+                        if ((Maze[i, j - 1] == 'X' && Maze[i, j + 1] == 'X' && Maze[i - 1, j] != 'X' && Maze[i + 1, j] != 'X' ||
+                            Maze[i, j - 1] != 'X' && Maze[i, j + 1] != 'X' && Maze[i - 1, j] == 'X' && Maze[i + 1, j] == 'X') &&
+                            value != 'S' && value != 'E')
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            Node node = new Node(i, j, value);
+                            Nodes.Add(node);
+                            value = Maze[i, j - 1];
+                            for (int left = j - 1; left >= 0 && value != 'X'; left--)
+                            {
+                                value = Maze[i, left];
+                                if (Nodes.Contains(new Node(i, left, value)))
+                                {
+                                    Nodes.TryGetValue(new Node(i, left, value), out Node neighbor);
+                                    neighbor.AddNeighbor(node);
+                                    node.AddNeighbor(neighbor);
+                                }
+                            }
+                            value = Maze[i - 1, j];
+                            for (int up = i - 1; up >= 0 && value != 'X'; up--)
+                            {
+                                value = Maze[up, j];
+                                if (Nodes.Contains(new Node(up, j, value)))
+                                {
+                                    Nodes.TryGetValue(new Node(up, j, value), out Node neighbor);
+                                    neighbor.AddNeighbor(node);
+                                    node.AddNeighbor(neighbor);
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            int cost = 0;
-            bool found_exit = false;
-
         }
+
         public static void Main()
         {
             var petya = new Dream();
-            petya.Input();
+            petya.ScanMaze();
+        }
+    }
 
-            Console.ReadKey();
+    public class Node
+    {
+        public Node(int r, int c)
+        {
+            Row = r;
+            Column = c;
+        }
+        public Node(int r, int c, char p)
+        {
+            Row = r;
+            Column = c;
+            if (p == 'S') IsStart = true;
+            else if (p == 'E') IsEnd = true;
+        }
+        private bool isStart = false;
+        private bool isEnd = false;
+        private HashSet<Node> neighbors = new HashSet<Node>();
+        private int row, column;
+        public int Row
+        {
+            get { return row; }
+            set { row = value; }
+        }
+        public int Column
+        {
+            get { return column; }
+            set { column = value; }
+        }
+        public HashSet<Node> Neighbors 
+        { 
+            get { return neighbors; }
+            set { neighbors = value; }
+        }
+        public bool IsStart
+        {
+            get { return isStart; }
+            set { isStart = value; }
+        }
+        public bool IsEnd
+        {
+            get { return isEnd; }
+            set { isEnd = value; }
+        }
+        public void AddNeighbor(Node node) => Neighbors.Add(node);
+    }
+
+    class Path
+    {
+        private bool passedRed = false, passedBlue = false, passedGreen = false, passedYellow = false;
+        public bool Red
+        {
+            get { return passedRed; }
+            set { passedRed = value; }
+        }
+        public bool Blue
+        {
+            get { return passedBlue; }
+            set { passedBlue = value; }
+        }
+        public bool Green
+        {
+            get { return passedGreen; }
+            set { passedGreen = value; }
+        }
+        public bool Yellow
+        {
+            get { return passedYellow; }
+            set { passedYellow = value; }
         }
     }
 }
