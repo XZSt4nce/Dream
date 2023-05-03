@@ -5,7 +5,7 @@ VisualStudioVersion = 17.3.32825.248
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dream", "Dream.csproj", "{384EDC02-470C-4839-A646-F0F82E5708A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DreamTest", "..\DreamTest\DreamTest.csproj", "{1E59F0EE-4EFA-4AE1-A9A6-A45B6BF0D057}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DreamTest", "DreamTest\DreamTest.csproj", "{73D71B3F-B1F3-41CD-B35B-C9B93ECE105B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{384EDC02-470C-4839-A646-F0F82E5708A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{384EDC02-470C-4839-A646-F0F82E5708A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{384EDC02-470C-4839-A646-F0F82E5708A3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1E59F0EE-4EFA-4AE1-A9A6-A45B6BF0D057}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1E59F0EE-4EFA-4AE1-A9A6-A45B6BF0D057}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1E59F0EE-4EFA-4AE1-A9A6-A45B6BF0D057}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1E59F0EE-4EFA-4AE1-A9A6-A45B6BF0D057}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73D71B3F-B1F3-41CD-B35B-C9B93ECE105B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73D71B3F-B1F3-41CD-B35B-C9B93ECE105B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73D71B3F-B1F3-41CD-B35B-C9B93ECE105B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73D71B3F-B1F3-41CD-B35B-C9B93ECE105B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
