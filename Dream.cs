@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace dream
 {
@@ -330,8 +331,25 @@ namespace dream
             }
         }
 
-        // Метод, который сканирует в лабиринте узлы, рёбра и двери
-        public void ScanMaze()
+        public bool NodesContains(HashSet<Node> set, Node node)
+        {
+            foreach (Node n in set)
+            {
+                if (node.Equals(n)) return true;
+            }
+            return false;
+        }
+
+        public Node Get(HashSet<Node> set, Node node)
+        {
+            foreach (Node n in set)
+            {
+                if (node.Equals(n)) return n;
+            }
+            return null;
+        }
+
+        public void ScanNodes()
         {
             for (int i = 0; i < Maze.GetUpperBound(0) + 1; i++)
             {
@@ -355,9 +373,9 @@ namespace dream
                             for (int left = j - 1; left >= 0 && value != 'X'; left--)
                             {
                                 value = Maze[i, left];
-                                if (Nodes.Contains(new Node(i, left, value)))
+                                if (NodesContains(Nodes, new Node(i, left, value)))
                                 {
-                                    Nodes.TryGetValue(new Node(i, left, value), out Node neighbor);
+                                    Node neighbor = Get(Nodes, new Node(i, left, value));
                                     neighbor.AddNeighbor(node);
                                     node.AddNeighbor(neighbor);
                                 }
@@ -366,9 +384,9 @@ namespace dream
                             for (int up = i - 1; up >= 0 && value != 'X'; up--)
                             {
                                 value = Maze[up, j];
-                                if (Nodes.Contains(new Node(up, j, value)))
+                                if (NodesContains(Nodes, new Node(up, j, value)))
                                 {
-                                    Nodes.TryGetValue(new Node(up, j, value), out Node neighbor);
+                                    Node neighbor = Get(Nodes, new Node(up, j, value));
                                     neighbor.AddNeighbor(node);
                                     node.AddNeighbor(neighbor);
                                 }
@@ -382,7 +400,7 @@ namespace dream
         public static void Main()
         {
             var petya = new Dream();
-            petya.ScanMaze();
+            petya.ScanNodes();
         }
     }
 
@@ -399,6 +417,15 @@ namespace dream
             Column = c;
             if (p == 'S') IsStart = true;
             else if (p == 'E') IsEnd = true;
+        }
+        public bool Equals(Node node)
+        {
+            bool c1 = isStart == node.IsStart;
+            bool c2 = isEnd == node.IsEnd;
+            bool c3 = row == node.Row;
+            bool c4 = column == node.Column;
+            bool c5 = Neighbors.Count == node.Neighbors.Count;
+            return c1 && c2 && c3 && c4 && c5;
         }
         private bool isStart = false;
         private bool isEnd = false;
