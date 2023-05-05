@@ -378,6 +378,7 @@ namespace dream
                                     Node neighbor = Get(Nodes, new Node(i, left, value));
                                     neighbor.AddNeighbor(node);
                                     node.AddNeighbor(neighbor);
+                                    break;
                                 }
                             }
                             value = Maze[i - 1, j];
@@ -389,6 +390,7 @@ namespace dream
                                     Node neighbor = Get(Nodes, new Node(up, j, value));
                                     neighbor.AddNeighbor(node);
                                     node.AddNeighbor(neighbor);
+                                    break;
                                 }
                             }
                         }
