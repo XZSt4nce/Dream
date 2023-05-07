@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.SymbolStore;
 using System.Linq;
 
 namespace dream
@@ -8,7 +9,7 @@ namespace dream
     {
         private char[,] maze;
         private int r, g, b, y;
-        private HashSet<Node> nodes = new HashSet<Node>();
+        private Dictionary<int[], Node> nodes = new Dictionary<int[], Node>();
         public char[,] Maze
         {
             get { return maze; } set { maze = value; } 
@@ -29,7 +30,7 @@ namespace dream
         {
             get { return y; } set { y = value; }
         }
-        public HashSet<Node> Nodes
+        public Dictionary<int[], Node> Nodes
         {
             get { return nodes; }
             set { nodes = value; }
@@ -331,29 +332,61 @@ namespace dream
             }
         }
 
-        public bool NodesContains(HashSet<Node> set, Node node)
+        public bool Contains(Dictionary<int[], Node> dict, int[] target)
         {
-            foreach (Node n in set)
+            int[][] keys = dict.Keys.ToArray();
+            bool found = false;
+            foreach (int[] key in keys)
             {
-                if (node.Equals(n)) return true;
+                found = true;
+                if (key.Length == target.Length)
+                {
+                    for (int i = 0; i < target.Length; i++)
+                    {
+                        if (key[i] != target[i])
+                        {
+                            found = false;
+                            break;
+                        }
+                    }
+                }
+                if (found) break;
             }
-            return false;
+            return found;
         }
 
-        public Node Get(HashSet<Node> set, Node node)
+        public int[] GetKey(Dictionary<int[], Node> dict, int[] target)
         {
-            foreach (Node n in set)
+            int[][] keys = dict.Keys.ToArray();
+            bool notFound;
+            foreach (int[] key in keys)
             {
-                if (node.Equals(n)) return n;
+                notFound = false;
+                if (key.Length == target.Length)
+                {
+                    for (int i = 0; i < target.Length; i++)
+                    {
+                        if (key[i] != target[i])
+                        {
+                            notFound = true;
+                            break;
+                        }
+                    }
+                }
+                if (!notFound)
+                {
+                    target = key;
+                    break;
+                }
             }
-            return null;
+            return target;
         }
 
         public void ScanNodes()
         {
-            for (int i = 0; i < Maze.GetUpperBound(0) + 1; i++)
+            for (int i = 1; i < Maze.GetUpperBound(0); i++)
             {
-                for (int j = 0; j < Maze.GetUpperBound(1) + 1; j++)
+                for (int j = 1; j < Maze.GetUpperBound(1); j++)
                 {
                     char value = Maze[i, j];
                     if (value == 'X') continue;
@@ -368,14 +401,16 @@ namespace dream
                         else
                         {
                             Node node = new Node(i, j, value);
-                            Nodes.Add(node);
                             value = Maze[i, j - 1];
                             for (int left = j - 1; left >= 0 && value != 'X'; left--)
                             {
                                 value = Maze[i, left];
-                                if (NodesContains(Nodes, new Node(i, left, value)))
+                                int[] key = new int[] { i, left };
+
+                                if (Contains(Nodes, key))
                                 {
-                                    Node neighbor = Get(Nodes, new Node(i, left, value));
+                                    key = GetKey(Nodes, key);
+                                    Nodes.TryGetValue(key, out Node neighbor);
                                     neighbor.AddNeighbor(node);
                                     node.AddNeighbor(neighbor);
                                     break;
@@ -385,16 +420,30 @@ namespace dream
                             for (int up = i - 1; up >= 0 && value != 'X'; up--)
                             {
                                 value = Maze[up, j];
-                                if (NodesContains(Nodes, new Node(up, j, value)))
+                                int[] key = new int[] { up, j };
+                                if (Contains(Nodes, key))
                                 {
-                                    Node neighbor = Get(Nodes, new Node(up, j, value));
+                                    key = GetKey(Nodes, key);
+                                    Nodes.TryGetValue(key, out Node neighbor);
                                     neighbor.AddNeighbor(node);
                                     node.AddNeighbor(neighbor);
                                     break;
                                 }
                             }
+                            Nodes.Add(new int[] { i, j }, node);
                         }
                     }
+                }
+            }
+        }
+
+        public void ScanEdges()
+        {
+            for (int i = 1; i < Maze.GetUpperBound(0); i++)
+            {
+                for (int j = 1; j < Maze.GetUpperBound(1); j++)
+                {
+
                 }
             }
         }
@@ -422,10 +471,10 @@ namespace dream
         }
         public bool Equals(Node node)
         {
-            bool c1 = isStart == node.IsStart;
-            bool c2 = isEnd == node.IsEnd;
-            bool c3 = row == node.Row;
-            bool c4 = column == node.Column;
+            bool c1 = IsStart == node.IsStart;
+            bool c2 = IsEnd == node.IsEnd;
+            bool c3 = Row == node.Row;
+            bool c4 = Column == node.Column;
             bool c5 = Neighbors.Count == node.Neighbors.Count;
             return c1 && c2 && c3 && c4 && c5;
         }
