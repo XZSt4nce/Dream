@@ -437,14 +437,22 @@ namespace dream
             }
         }
 
-        public void ScanEdges()
+        public void ScanPaths()
         {
-            for (int i = 1; i < Maze.GetUpperBound(0); i++)
+            Stack<Node> stack = new Stack<Node>();
+            HashSet<Node> visited = new HashSet<Node>();
+            Node start;
+            foreach (Node node in Nodes.Values)
             {
-                for (int j = 1; j < Maze.GetUpperBound(1); j++)
+                if (node.IsStart)
                 {
-
+                    start = node;
+                    break;
                 }
+            }
+            while (visited.Count < Nodes.Count)
+            {
+
             }
         }
 
