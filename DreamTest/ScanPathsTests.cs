@@ -9,16 +9,15 @@ namespace DreamTest
     [TestClass]
     public class ScanPathsTests
     {
-        public bool Compare(Path[] expected, Dictionary<int, Path> actual)
+        public bool Compare(Path[] expected, Path[] actual)
         {
-            var paths = actual.Values.ToArray();
-            if (expected.Length != paths.Length) return false;
+            if (expected.Length != actual.Length) return false;
             for (int i = 0; i < expected.Length; i++)
             {
-                if (expected[i].Way.Length != paths[i].Way.Length) return false;
+                if (expected[i].Way.Length != actual[i].Way.Length) return false;
                 for (int j = 0; j < expected[i].Way.Length; j++)
                 {
-                    if (!expected[i].Way[j].Equals(paths[i].Way[j])) return false;
+                    if (!expected[i].Way[j].Equals(actual[i].Way[j])) return false;
                 }
             }
             return true;
@@ -57,7 +56,7 @@ namespace DreamTest
                     nodes[4]
                 })
             };
-            Assert.IsTrue(Compare(expected, test.Paths));
+            Assert.IsTrue(Compare(expected, test.Paths.Values.ToArray()));
         }
     }
 }
