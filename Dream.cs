@@ -162,7 +162,7 @@ namespace dream
                     Console.WriteLine("Ошибка ввода! Попробуйте ещё раз");
                     continue;
                 }
-                maze = new char[(int.Parse(split_sides[0])), (int.Parse(split_sides[1]))];
+                Maze = new char[(int.Parse(split_sides[0])), (int.Parse(split_sides[1]))];
                 break;
             }
 
@@ -211,10 +211,11 @@ namespace dream
                 break;
             }
             Console.Clear();
+            int row = Maze.GetUpperBound(0) + 1, column = Maze.GetUpperBound(1) + 1; // Количество строк и столбцов
             // Заполнение лабиринта точками
-            for (int i = 0; i < Maze.GetUpperBound(0) + 1; i++)
+            for (int i = 0; i < row; i++)
             {
-                for (int j = 0; j < Maze.GetUpperBound(1) + 1; j++)
+                for (int j = 0; j < column; j++)
                 {
                     Maze[i, j] = '.';
                 }
@@ -222,16 +223,15 @@ namespace dream
 
             // Считывание лабиринта
             bool s = false, e = false; // Есть ли в лабиринте начальная точка и выход
-            int row = Maze.GetUpperBound(0) + 1, column = Maze.GetUpperBound(1) + 1; // Количество строк и столбцов
             for (int i = 0; i < row; i++)
             {
-                Maze[0, i] = 'X';
-                Maze[column - 1, i] = 'X';
+                Maze[i, 0] = 'X';
+                Maze[i, column - 1] = 'X';
             }
             for (int i = 0; i < column; i++)
             {
-                Maze[i, 0] = 'X';
-                Maze[i, row - 1] = 'X';
+                Maze[0, i] = 'X';
+                Maze[row - 1, i] = 'X';
             }
             Console.CursorVisible = false;
             int rowIndex = 0, columnIndex = 0;
