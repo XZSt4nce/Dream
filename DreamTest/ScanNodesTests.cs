@@ -56,6 +56,10 @@ namespace DreamTest
                 new Node(4, 3),
                 new Node(4, 5)
             };
+
+            nodes[2].Colors[1] = 0b1000;
+            nodes[6].Colors[1] = 0b1000;
+
             nodes[0].AddNeighbor(nodes[3]);
             nodes[3].AddNeighbor(nodes[0]);
             nodes[1].AddNeighbor(nodes[2]);
@@ -68,6 +72,7 @@ namespace DreamTest
             nodes[2].AddNeighbor(nodes[6]);
             nodes[1].AddNeighbor(nodes[5]);
             nodes[5].AddNeighbor(nodes[1]);
+
             Dictionary<int[], Node> expected = AddNodes(nodes);
             Assert.IsTrue(Compare(expected, test.Nodes));
         }

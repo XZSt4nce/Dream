@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.SymbolStore;
 using System.Linq;
 
 namespace dream
@@ -10,6 +9,7 @@ namespace dream
         private char[,] maze;
         private int r, g, b, y;
         private Dictionary<int[], Node> nodes = new Dictionary<int[], Node>();
+        private Dictionary<int, Path> paths = new Dictionary<int, Path>();
         public char[,] Maze
         {
             get { return maze; } set { maze = value; } 
@@ -34,6 +34,11 @@ namespace dream
         {
             get { return nodes; }
             set { nodes = value; }
+        }
+        public Dictionary<int, Path> Paths
+        {
+            get { return paths; }
+            set { paths = value; }
         }
         public Dream() { Input(); }
         public Dream(char[,] maze) { Maze = maze; }
@@ -401,30 +406,68 @@ namespace dream
                         else
                         {
                             Node node = new Node(i, j, value);
+                            bool passedRed = false, 
+                                 passedGreen = false, 
+                                 passedBlue = false, 
+                                 passedYellow = false;
                             value = Maze[i, j - 1];
                             for (int left = j - 1; left >= 0 && value != 'X'; left--)
                             {
                                 value = Maze[i, left];
                                 int[] key = new int[] { i, left };
 
+                                if (value == 'R') passedRed = true;
+                                if (value == 'G') passedGreen = true;
+                                if (value == 'B') passedBlue = true;
+                                if (value == 'Y') passedYellow = true;
+
                                 if (Contains(Nodes, key))
                                 {
                                     key = GetKey(Nodes, key);
                                     Nodes.TryGetValue(key, out Node neighbor);
+                                    node.Colors[node.NeighborsCount++] = Convert.ToInt32(passedRed)    * 0b1000 + 
+                                                                         Convert.ToInt32(passedGreen)  * 0b0100 + 
+                                                                         Convert.ToInt32(passedBlue)   * 0b0010 +
+                                                                         Convert.ToInt32(passedYellow) * 0b0001;
+
+                                    neighbor.Colors[neighbor.NeighborsCount++] = Convert.ToInt32(passedRed)    * 0b1000 +
+                                                                                 Convert.ToInt32(passedGreen)  * 0b0100 +
+                                                                                 Convert.ToInt32(passedBlue)   * 0b0010 +
+                                                                                 Convert.ToInt32(passedYellow) * 0b0001;
                                     neighbor.AddNeighbor(node);
                                     node.AddNeighbor(neighbor);
                                     break;
                                 }
                             }
+
+                            passedRed = false;
+                            passedGreen = false;
+                            passedBlue = false;
+                            passedYellow = false;
                             value = Maze[i - 1, j];
                             for (int up = i - 1; up >= 0 && value != 'X'; up--)
                             {
                                 value = Maze[up, j];
                                 int[] key = new int[] { up, j };
+
+                                if (value == 'R') passedRed = true;
+                                if (value == 'G') passedGreen = true;
+                                if (value == 'B') passedBlue = true;
+                                if (value == 'Y') passedYellow = true;
+
                                 if (Contains(Nodes, key))
                                 {
                                     key = GetKey(Nodes, key);
                                     Nodes.TryGetValue(key, out Node neighbor);
+                                    node.Colors[node.NeighborsCount++] = Convert.ToInt32(passedRed) * 0b1000 +
+                                                                         Convert.ToInt32(passedGreen) * 0b0100 +
+                                                                         Convert.ToInt32(passedBlue) * 0b0010 +
+                                                                         Convert.ToInt32(passedYellow) * 0b0001;
+
+                                    neighbor.Colors[neighbor.NeighborsCount++] = Convert.ToInt32(passedRed) * 0b1000 +
+                                                                                 Convert.ToInt32(passedGreen) * 0b0100 +
+                                                                                 Convert.ToInt32(passedBlue) * 0b0010 +
+                                                                                 Convert.ToInt32(passedYellow) * 0b0001;
                                     neighbor.AddNeighbor(node);
                                     node.AddNeighbor(neighbor);
                                     break;
@@ -441,18 +484,51 @@ namespace dream
         {
             Stack<Node> stack = new Stack<Node>();
             HashSet<Node> visited = new HashSet<Node>();
-            Node start;
+            Path path = new Path();
             foreach (Node node in Nodes.Values)
             {
                 if (node.IsStart)
                 {
-                    start = node;
+                    stack.Push(node);
+                    visited.Add(node);
                     break;
                 }
             }
-            while (visited.Count < Nodes.Count)
+            while (stack.Count > 0)
             {
+                Node node = stack.Peek();
+                if (!visited.Contains(node))
+                {
+                    stack.Push(node);
+                }
 
+                if (node.IsEnd)
+                {
+                    path.Way = stack.ToArray();
+                    Paths.Add(Paths.Count, path);
+                    path = new Path();
+                    stack.Pop();
+                    visited.Remove(node);
+                    node = stack.Peek();
+                    node.PassedEnd = true;
+                    continue;
+                }
+
+                bool hasNeighbors = false;
+                foreach (Node neighbor in node.Neighbors)
+                {
+                    if (!visited.Contains(neighbor) && (!neighbor.IsEnd || !node.PassedEnd))
+                    {
+                        stack.Push(neighbor);
+                        visited.Add(neighbor);
+                        hasNeighbors = true;
+                        break;
+                    }
+                }
+                if (!hasNeighbors)
+                {
+                    stack.Pop();
+                }
             }
         }
 
@@ -484,11 +560,36 @@ namespace dream
             bool c3 = Row == node.Row;
             bool c4 = Column == node.Column;
             bool c5 = Neighbors.Count == node.Neighbors.Count;
-            return c1 && c2 && c3 && c4 && c5;
+            bool cr = Colors[0] == node.Colors[0];
+            bool cg = Colors[1] == node.Colors[1];
+            bool cb = Colors[2] == node.Colors[2];
+            bool cy = Colors[3] == node.Colors[3];
+            return c1 && c2 && c3 && c4 && c5 && cr && cg && cb && cy;
+        }
+        public int GetNeighborPosition (Node node)
+        {
+            int position = 0;
+            foreach (Node neighbor in Neighbors)
+            {
+                if (neighbor == node) { break; }
+                position++;
+            }
+            return position;
         }
         private bool isStart = false;
         private bool isEnd = false;
+        private bool passedEnd = false;
         private HashSet<Node> neighbors = new HashSet<Node>();
+        private int neighborsCount = 0;
+        private int[] colors = new int[4] { 0b0000, 0b0000, 0b0000, 0b0000 };
+        /*  
+         *  0b0000
+         *    ^^^^
+         *    |||└- Yellow
+         *    ||└- Blue
+         *    |└- Green
+         *    └- Red
+        */
         private int row, column;
         public int Row
         {
@@ -515,12 +616,47 @@ namespace dream
             get { return isEnd; }
             set { isEnd = value; }
         }
+        public bool PassedEnd
+        {
+            get { return passedEnd; }
+            set { passedEnd = value; }
+        }
+        public int NeighborsCount
+        {
+            get { return neighborsCount; }
+            set { neighborsCount = value; }
+        }
+        public int[] Colors
+        {
+            get { return colors; }
+            set { colors = value; }
+        }
         public void AddNeighbor(Node node) => Neighbors.Add(node);
     }
 
-    class Path
+    public class Path
     {
+        public Path() { }
+        public Path(Node[] _way)
+        {
+            Way = _way;
+        }
+        public Path(Node[] _way, bool _passedRed, bool _passedBlue, bool _passedGreen, bool _passedYellow)
+        {
+            Way = _way;
+            Red = _passedRed;
+            Blue = _passedBlue;
+            Green = _passedGreen;
+            Yellow = _passedYellow;
+        }
+
+        private Node[] way;
         private bool passedRed = false, passedBlue = false, passedGreen = false, passedYellow = false;
+        public Node[] Way
+        {
+            get { return way; }
+            set { way = value; }
+        }
         public bool Red
         {
             get { return passedRed; }
