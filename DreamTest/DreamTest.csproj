@@ -52,6 +52,7 @@
     <Compile Include="ScanNodesTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScanPathsTests.cs" />
+    <Compile Include="PathsColorizationTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

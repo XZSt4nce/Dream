@@ -223,6 +223,16 @@ namespace dream
             // Считывание лабиринта
             bool s = false, e = false; // Есть ли в лабиринте начальная точка и выход
             int row = Maze.GetUpperBound(0) + 1, column = Maze.GetUpperBound(1) + 1; // Количество строк и столбцов
+            for (int i = 0; i < row; i++)
+            {
+                Maze[0, i] = 'X';
+                Maze[column - 1, i] = 'X';
+            }
+            for (int i = 0; i < column; i++)
+            {
+                Maze[i, 0] = 'X';
+                Maze[i, row - 1] = 'X';
+            }
             Console.CursorVisible = false;
             int rowIndex = 0, columnIndex = 0;
             char value;
@@ -275,14 +285,14 @@ namespace dream
                 {
                     Maze[rowIndex, columnIndex] = '.';
                 }
-                else if (value == 'S' || 
-                         value == 'E' || 
-                         value == 'R' || 
-                         value == 'Y' || 
-                         value == 'X' || 
-                         value == 'B' || 
-                         value == '.' || 
-                         value == 'G')
+                else if (key.Key == ConsoleKey.S ||
+                         key.Key == ConsoleKey.E ||
+                         key.Key == ConsoleKey.R ||
+                         key.Key == ConsoleKey.Y ||
+                         key.Key == ConsoleKey.X ||
+                         key.Key == ConsoleKey.B || 
+                         value == '.' ||
+                         key.Key == ConsoleKey.G)
                 {
                     if (value == 'E')
                     {
@@ -532,10 +542,49 @@ namespace dream
             }
         }
 
+        public void PathsColorization()
+        {
+            foreach (Path path in Paths.Values.ToArray())
+            {
+                for (int i = 0; i < path.Way.Length - 1; i++)
+                {
+                    Node node = path.Way[i];
+                    int colors = node.Colors[node.GetNeighborPosition(path.Way[i + 1])];
+                    if ((colors & 0b1000) == 0b1000) path.Red = true;
+                    if ((colors & 0b0100) == 0b0100) path.Green = true;
+                    if ((colors & 0b0010) == 0b0010) path.Blue = true;
+                    if ((colors & 0b0001) == 0b0001) path.Yellow = true;
+                }
+            }
+        }
+
         public static void Main()
         {
             var petya = new Dream();
             petya.ScanNodes();
+            petya.ScanPaths();
+            petya.PathsColorization();
+            if (petya.Paths.Count == 0)
+            {
+                Console.WriteLine("Sleep");
+                Environment.Exit(0);
+            }
+            Path first = petya.Paths[0];
+            int min = Convert.ToInt32(first.Red) * petya.R + 
+                      Convert.ToInt32(first.Green) * petya.G +
+                      Convert.ToInt32(first.Blue) * petya.B +
+                      Convert.ToInt32(first.Yellow) * petya.Y;
+            for (int i = 1; i < petya.Paths.Count; i++)
+            {
+                Path path = petya.Paths[i];
+                int cost = Convert.ToInt32(path.Red) * petya.R +
+                           Convert.ToInt32(path.Green) * petya.G +
+                           Convert.ToInt32(path.Blue) * petya.B +
+                           Convert.ToInt32(path.Yellow) * petya.Y;
+                if (cost < min) min = cost;
+            }
+            Console.WriteLine(min);
+            Console.ReadKey(false);
         }
     }
 
