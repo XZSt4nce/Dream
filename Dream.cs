@@ -404,11 +404,23 @@ namespace dream
                 for (int j = 1; j < Maze.GetUpperBound(1); j++)
                 {
                     char value = Maze[i, j];
+                    char u = Maze[i - 1, j];
+                    char d = Maze[i + 1, j];
+                    char l = Maze[i, j - 1];
+                    char r = Maze[i, j + 1];
+                    char ul = Maze[i - 1, j - 1];
+                    char ur = Maze[i - 1, j + 1];
+                    char dl = Maze[i + 1, j - 1];
+                    char dr = Maze[i + 1, j + 1];
                     if (value == 'X') continue;
                     else
                     {
-                        if ((Maze[i, j - 1] == 'X' && Maze[i, j + 1] == 'X' && Maze[i - 1, j] != 'X' && Maze[i + 1, j] != 'X' ||
-                            Maze[i, j - 1] != 'X' && Maze[i, j + 1] != 'X' && Maze[i - 1, j] == 'X' && Maze[i + 1, j] == 'X') &&
+                        if ((l == 'X' && r == 'X' && u != 'X' && d != 'X' ||
+                             l != 'X' && r != 'X' && u == 'X' && d == 'X' ||
+                             l != 'X' && r != 'X' && u != 'X' && ul != 'X' && ur != 'X' ||
+                             l != 'X' && r != 'X' && d != 'X' && dl != 'X' && dr != 'X' ||
+                             l != 'X' && u != 'X' && d != 'X' && dl != 'X' && ul != 'X' ||
+                             r != 'X' && u != 'X' && d != 'X' && dr != 'X' && ur != 'X') &&
                             value != 'S' && value != 'E')
                         {
                             continue;
@@ -493,32 +505,29 @@ namespace dream
         public void ScanPaths()
         {
             Stack<Node> stack = new Stack<Node>();
-            HashSet<Node> visited = new HashSet<Node>();
+            Stack<HashSet<Node>> visited = new Stack<HashSet<Node>>();
             Path path = new Path();
             foreach (Node node in Nodes.Values)
             {
                 if (node.IsStart)
                 {
                     stack.Push(node);
-                    visited.Add(node);
+                    visited.Push(new HashSet<Node>());
+                    visited.Peek().Add(node);
                     break;
                 }
             }
             while (stack.Count > 0)
             {
                 Node node = stack.Peek();
-                if (!visited.Contains(node))
-                {
-                    stack.Push(node);
-                }
-
+                HashSet<Node> actualVisited = visited.Peek();
                 if (node.IsEnd)
                 {
                     path.Way = stack.ToArray();
                     Paths.Add(Paths.Count, path);
                     path = new Path();
                     stack.Pop();
-                    visited.Remove(node);
+                    visited.Pop();
                     node = stack.Peek();
                     node.PassedEnd = true;
                     continue;
@@ -527,10 +536,17 @@ namespace dream
                 bool hasNeighbors = false;
                 foreach (Node neighbor in node.Neighbors)
                 {
-                    if (!visited.Contains(neighbor) && (!neighbor.IsEnd || !node.PassedEnd))
+                    if (!actualVisited.Contains(neighbor) && (!neighbor.IsEnd || !node.PassedEnd))
                     {
                         stack.Push(neighbor);
-                        visited.Add(neighbor);
+                        actualVisited.Add(neighbor);
+                        var visitedArr = actualVisited.ToArray();
+                        var newVisited = new HashSet<Node>();
+                        foreach (Node v in visitedArr)
+                        {
+                            newVisited.Add(v);
+                        }
+                        visited.Push(newVisited);
                         hasNeighbors = true;
                         break;
                     }
@@ -538,6 +554,7 @@ namespace dream
                 if (!hasNeighbors)
                 {
                     stack.Pop();
+                    visited.Pop();
                 }
             }
         }

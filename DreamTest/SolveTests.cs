@@ -23,11 +23,13 @@ namespace DreamTest
                 { 'X', 'X', '.', 'Y', 'G', '.', '.', '.', '.', '.', '.', 'X' },
                 { 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X' }
             };
-            Dream test = new Dream(maze);
-            test.R = 3;
-            test.G = 4;
-            test.B = 5;
-            test.Y = 6;
+            Dream test = new Dream(maze)
+            {
+                R = 3,
+                G = 4,
+                B = 5,
+                Y = 6
+            };
             test.ScanNodes();
             test.ScanPaths();
             test.PathsColorization();
