@@ -7,28 +7,53 @@ namespace dream
     public class Dream
     {
         private char[,] maze;
-        private int r, g, b, y;
+        private int r, g, b, y, startRow, startColumn, endRow, endColumn;
         private Dictionary<int[], Node> nodes = new Dictionary<int[], Node>();
         private Dictionary<int, Path> paths = new Dictionary<int, Path>();
         public char[,] Maze
         {
-            get { return maze; } set { maze = value; } 
+            get { return maze; }
+            set { maze = value; } 
         }
         public int R
         {
-            get { return r; } set { r = value; }
+            get { return r; }
+            set { r = value; }
         }
         public int G
         {
-            get { return g; } set { g = value; }
+            get { return g; }
+            set { g = value; }
         }
         public int B
         {
-            get { return b; } set { b = value; }
+            get { return b; }
+            set { b = value; }
         }
         public int Y
         {
-            get { return y; } set { y = value; }
+            get { return y; }
+            set { y = value; }
+        }
+        public int StartRow
+        {
+            get { return startRow; }
+            set { startRow = value; }
+        }
+        public int StartColumn
+        {
+            get { return startColumn; }
+            set { startColumn = value; }
+        }
+        public int EndRow
+        {
+            get { return endRow; }
+            set { endRow = value; }
+        }
+        public int EndColumn
+        {
+            get { return endColumn; }
+            set { endColumn = value; }
         }
         public Dictionary<int[], Node> Nodes
         {
@@ -301,6 +326,7 @@ namespace dream
                         {
                             Maze[rowIndex, columnIndex] = value;
                             e = true;
+                            EndRow = rowIndex; EndColumn = columnIndex;
                         }
                     }
                     else if (value == 'S')
@@ -310,6 +336,7 @@ namespace dream
                         {
                             Maze[rowIndex, columnIndex] = value;
                             s = true;
+                            StartRow = rowIndex; StartColumn = columnIndex;
                         }
                     }
                     else
@@ -417,10 +444,10 @@ namespace dream
                     {
                         if ((l == 'X' && r == 'X' && u != 'X' && d != 'X' ||
                              l != 'X' && r != 'X' && u == 'X' && d == 'X' ||
-                             l != 'X' && r != 'X' && u != 'X' && ul != 'X' && ur != 'X' ||
-                             l != 'X' && r != 'X' && d != 'X' && dl != 'X' && dr != 'X' ||
-                             l != 'X' && u != 'X' && d != 'X' && dl != 'X' && ul != 'X' ||
-                             r != 'X' && u != 'X' && d != 'X' && dr != 'X' && ur != 'X') &&
+                             l != 'X' && r != 'X' && u != 'X' && ul != 'X' && ur != 'X' && StartColumn != j && EndColumn != j ||
+                             l != 'X' && r != 'X' && d != 'X' && dl != 'X' && dr != 'X' && StartColumn != j && EndColumn != j ||
+                             l != 'X' && u != 'X' && d != 'X' && dl != 'X' && ul != 'X' && StartRow != i && EndRow != i ||
+                             r != 'X' && u != 'X' && d != 'X' && dr != 'X' && ur != 'X' && StartRow != i && EndRow != i) &&
                             value != 'S' && value != 'E')
                         {
                             continue;
