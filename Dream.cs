@@ -202,6 +202,7 @@ namespace dream
         }
         public void Input()
         {
+            int row, column;
             // Считывание сторон лабиринта
             while (true)
             {
@@ -238,6 +239,14 @@ namespace dream
                 if (split_sides.Length != 2)
                 {
                     Console.WriteLine("Ошибка ввода! Попробуйте ещё раз");
+                    continue;
+                }
+                row = int.Parse(split_sides[0]);
+                column = int.Parse(split_sides[1]);
+                if (row <= 2 || column <= 2 || row == 3 && column == 3)
+                {
+                    Console.WriteLine("Ошибка ввода! Недопустимая размерность лабиринта");
+                    Console.WriteLine("Примечание. Лабиринт окружается стенами");
                     continue;
                 }
                 Maze = new char[(int.Parse(split_sides[0])), (int.Parse(split_sides[1]))];
@@ -286,10 +295,14 @@ namespace dream
                 G = int.Parse(split_keys[1]);
                 B = int.Parse(split_keys[2]);
                 Y = int.Parse(split_keys[3]);
+                if (R < 0 || G < 0 || B < 0 || Y < 0)
+                {
+                    Console.WriteLine("Ошибка ввода! Стоимость ключа не может быть отрицательной");
+                    continue;
+                }
                 break;
             }
             Console.Clear();
-            int row = Maze.GetUpperBound(0) + 1, column = Maze.GetUpperBound(1) + 1; // Количество строк и столбцов
             // Заполнение лабиринта точками
             for (int i = 0; i < row; i++)
             {
@@ -685,7 +698,7 @@ namespace dream
             }
             petya.PrintMaze();
             Console.WriteLine($"\nСамый дешёвый путь стоит: {min}");
-            Console.ReadKey(false);
+            Console.ReadKey(true);
         }
     }
 
