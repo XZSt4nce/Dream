@@ -325,7 +325,7 @@ namespace dream
                 Maze[row - 1, i] = 'X';
             }
             Console.CursorVisible = false;
-            int rowIndex = 0, columnIndex = 0;
+            int rowIndex = 1, columnIndex = 1;
             char value;
             bool error_walls = true, error_se = true;
             ConsoleKeyInfo key;
@@ -367,77 +367,82 @@ namespace dream
                     if (columnIndex != column - 1) columnIndex++;
                     else columnIndex = 0;
                 }
-                else if ( key.Key == ConsoleKey.LeftArrow)
+                else if (key.Key == ConsoleKey.LeftArrow)
                 {
                     if (columnIndex != 0) columnIndex--;
                     else columnIndex = column - 1;
                 }
-                else if (key.Key == ConsoleKey.Backspace || key.Key == ConsoleKey.Delete)
+                else if (rowIndex != 0 && rowIndex != row - 1 &&
+                         columnIndex != 0 && columnIndex != column - 1)
                 {
-                    Maze[rowIndex, columnIndex] = '.';
-                }
-                else if ((key.Key == ConsoleKey.S ||
-                         key.Key == ConsoleKey.E ||
-                         key.Key == ConsoleKey.R ||
-                         key.Key == ConsoleKey.Y ||
-                         key.Key == ConsoleKey.X ||
-                         key.Key == ConsoleKey.B || 
-                         value == '.' ||
-                         key.Key == ConsoleKey.G) &&
-                         key.Modifiers == 0 ||
-                         key.Modifiers == ConsoleModifiers.Shift)
-                {
-                    if (value == 'E')
+                    if (key.Key == ConsoleKey.Backspace || key.Key == ConsoleKey.Delete)
                     {
-                        if (Maze[rowIndex, columnIndex] == 'S') s = false;
-                        if (!e)
+                        Maze[rowIndex, columnIndex] = '.';
+                    }
+                    else if ((key.Key == ConsoleKey.S ||
+                             key.Key == ConsoleKey.E ||
+                             key.Key == ConsoleKey.R ||
+                             key.Key == ConsoleKey.Y ||
+                             key.Key == ConsoleKey.X ||
+                             key.Key == ConsoleKey.B ||
+                             value == '.' ||
+                             key.Key == ConsoleKey.G) &&
+                             key.Modifiers == 0 ||
+                             key.Modifiers == ConsoleModifiers.Shift)
+                    {
+                        if (value == 'E')
                         {
+                            if (Maze[rowIndex, columnIndex] == 'S') s = false;
+                            if (!e)
+                            {
+                                Maze[rowIndex, columnIndex] = value;
+                                e = true;
+                                EndRow = rowIndex; EndColumn = columnIndex;
+                            }
+                        }
+                        else if (value == 'S')
+                        {
+                            if (Maze[rowIndex, columnIndex] == 'E') e = false;
+                            if (!s)
+                            {
+                                Maze[rowIndex, columnIndex] = value;
+                                s = true;
+                                StartRow = rowIndex; StartColumn = columnIndex;
+                            }
+                        }
+                        else
+                        {
+                            if (Maze[rowIndex, columnIndex] == 'S') s = false;
+                            else if (Maze[rowIndex, columnIndex] == 'E') e = false;
                             Maze[rowIndex, columnIndex] = value;
-                            e = true;
-                            EndRow = rowIndex; EndColumn = columnIndex;
                         }
                     }
-                    else if (value == 'S')
+                    else if (key.Key == ConsoleKey.Enter)
                     {
-                        if (Maze[rowIndex, columnIndex] == 'E') e = false;
-                        if (!s)
+                        error_se = !s || !e;
+                        error_walls = false;
+                        for (int i = 0; i < row; i++)
                         {
-                            Maze[rowIndex, columnIndex] = value;
-                            s = true;
-                            StartRow = rowIndex; StartColumn = columnIndex;
-                        }
-                    }
-                    else
-                    {
-                        if (Maze[rowIndex, columnIndex] == 'S') s = false;
-                        else if (Maze[rowIndex, columnIndex] == 'E') e = false;
-                        Maze[rowIndex, columnIndex] = value;
-                    }
-                }
-                else if (key.Key == ConsoleKey.Enter)
-                {
-                    error_se = !s || !e;
-                    error_walls = false;
-                    for (int i = 0; i < row; i++)
-                    {
-                        if (Maze[i, 0] != 'X' || Maze[i, column - 1] != 'X')
-                        {
-                            error_walls = true;
-                            break;
-                        }
-                    }
-                    if (!error_walls)
-                    {
-                        for (int i = 0; i < column; i++)
-                        {
-                            if (Maze[0, i] != 'X' || Maze[row - 1, i] != 'X')
+                            if (Maze[i, 0] != 'X' || Maze[i, column - 1] != 'X')
                             {
                                 error_walls = true;
                                 break;
                             }
                         }
+                        if (!error_walls)
+                        {
+                            for (int i = 0; i < column; i++)
+                            {
+                                if (Maze[0, i] != 'X' || Maze[row - 1, i] != 'X')
+                                {
+                                    error_walls = true;
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
+                
                 Console.Clear();
             }
         }
