@@ -50,5 +50,45 @@ namespace DreamTest
             }
             Assert.IsTrue(min == 10, "Wrong min cost");
         }
+
+        [TestMethod]
+        public void SolveTest2()
+        {
+            char[,] maze = new char[,]
+            {
+                { 'X', 'X', 'X', 'X', 'X', 'X' },
+                { 'X', 'X', 'Y', 'G', 'E', 'X' },
+                { 'X', 'Y', 'G', 'R', 'B', 'X' },
+                { 'X', 'G', 'R', 'B', 'Y', 'X' },
+                { 'X', 'S', 'B', 'Y', 'X', 'X' },
+                { 'X', 'X', 'X', 'X', 'X', 'X' }
+            };
+            Dream test = new Dream(maze)
+            {
+                R = 1,
+                G = 2,
+                B = 3,
+                Y = 4
+            };
+            test.ScanNodes();
+            test.ScanPaths();
+            test.PathsColorization();
+            Assert.IsTrue(test.Paths.Count > 0, "Not enough paths");
+            Path first = test.Paths[0];
+            int min = Convert.ToInt32(first.Red) * test.R +
+                      Convert.ToInt32(first.Green) * test.G +
+                      Convert.ToInt32(first.Blue) * test.B +
+                      Convert.ToInt32(first.Yellow) * test.Y;
+            for (int i = 1; i < test.Paths.Count; i++)
+            {
+                Path path = test.Paths[i];
+                int cost = Convert.ToInt32(path.Red) * test.R +
+                           Convert.ToInt32(path.Green) * test.G +
+                           Convert.ToInt32(path.Blue) * test.B +
+                           Convert.ToInt32(path.Yellow) * test.Y;
+                if (cost < min) min = cost;
+            }
+            Assert.IsTrue(min == 3, "Wrong min cost");
+        }
     }
 }

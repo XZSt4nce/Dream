@@ -43,7 +43,7 @@ namespace DreamTest
         [TestMethod]
         public void PathsColorizationTest2()
         {
-            char[,] maze = new char[,]
+             char[,] maze = new char[,]
             {
                 { 'X', 'X', 'X', 'X', 'X', 'X' },
                 { 'X', 'S', '.', 'X', '.', 'X' },

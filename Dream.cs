@@ -442,7 +442,6 @@ namespace dream
                         }
                     }
                 }
-                
                 Console.Clear();
             }
         }
@@ -517,10 +516,10 @@ namespace dream
                     {
                         if ((l == 'X' && r == 'X' && u != 'X' && d != 'X' ||
                              l != 'X' && r != 'X' && u == 'X' && d == 'X' ||
-                             l != 'X' && r != 'X' && u != 'X' && ul != 'X' && ur != 'X' && StartColumn != j && EndColumn != j ||
-                             l != 'X' && r != 'X' && d != 'X' && dl != 'X' && dr != 'X' && StartColumn != j && EndColumn != j ||
-                             l != 'X' && u != 'X' && d != 'X' && dl != 'X' && ul != 'X' && StartRow != i && EndRow != i ||
-                             r != 'X' && u != 'X' && d != 'X' && dr != 'X' && ur != 'X' && StartRow != i && EndRow != i) &&
+                             l == '.' && r == '.' && u == '.' && ul == '.' && ur == '.' && d == 'X' && dl == 'X' && dr == 'X' && StartColumn != j && EndColumn != j ||
+                             l == '.' && r == '.' && d == '.' && dl == '.' && dr == '.' && u == 'X' && ul == 'X' && ur == 'X' && StartColumn != j && EndColumn != j ||
+                             l == '.' && u == '.' && d == '.' && dl == '.' && ul == '.' && r == 'X' && ur == 'X' && dr == 'X' && StartRow != i && EndRow != i ||
+                             r == '.' && u == '.' && d == '.' && dr == '.' && ur == '.' && l == 'X' && ul == 'X' && dl == 'X' && StartRow != i && EndRow != i) &&
                             value != 'S' && value != 'E')
                         {
                             continue;
@@ -606,7 +605,6 @@ namespace dream
         {
             Stack<Node> stack = new Stack<Node>();
             Stack<HashSet<Node>> visited = new Stack<HashSet<Node>>();
-            Path path = new Path();
             foreach (Node node in Nodes.Values)
             {
                 if (node.IsStart)
@@ -623,20 +621,19 @@ namespace dream
                 HashSet<Node> actualVisited = visited.Peek();
                 if (node.IsEnd)
                 {
+                    Path path = new Path();
                     path.Way = stack.ToArray();
                     Paths.Add(Paths.Count, path);
-                    path = new Path();
+                    stack.Pop();
                     stack.Pop();
                     visited.Pop();
-                    node = stack.Peek();
-                    node.PassedEnd = true;
                     continue;
                 }
 
                 bool hasNeighbors = false;
                 foreach (Node neighbor in node.Neighbors)
                 {
-                    if (!actualVisited.Contains(neighbor) && (!neighbor.IsEnd || !node.PassedEnd))
+                    if (!actualVisited.Contains(neighbor))
                     {
                         stack.Push(neighbor);
                         actualVisited.Add(neighbor);
@@ -668,10 +665,14 @@ namespace dream
                     Node node = path.Way[i];
                     char value = Maze[node.Row, node.Column];
                     int colors = node.Colors[node.GetNeighborPosition(path.Way[i + 1])];
-                    if ((colors & 0b1000) == 0b1000 || value == 'R') path.Red = true;
-                    if ((colors & 0b0100) == 0b0100 || value == 'G') path.Green = true;
-                    if ((colors & 0b0010) == 0b0010 || value == 'B') path.Blue = true;
-                    if ((colors & 0b0001) == 0b0001 || value == 'Y') path.Yellow = true;
+                    if ((colors & 0b1000) == 0b1000 || value == 'R') 
+                        path.Red = true;
+                    if ((colors & 0b0100) == 0b0100 || value == 'G') 
+                        path.Green = true;
+                    if ((colors & 0b0010) == 0b0010 || value == 'B') 
+                        path.Blue = true;
+                    if ((colors & 0b0001) == 0b0001 || value == 'Y') 
+                        path.Yellow = true;
                 }
             }
         }
@@ -684,7 +685,9 @@ namespace dream
             petya.PathsColorization();
             if (petya.Paths.Count == 0)
             {
-                Console.WriteLine("Sleep");
+                petya.PrintMaze();
+                Console.WriteLine("\nSleep");
+                Console.ReadKey(true);
                 Environment.Exit(0);
             }
             Path first = petya.Paths[0];
@@ -704,6 +707,7 @@ namespace dream
             petya.PrintMaze();
             Console.WriteLine($"\nСамый дешёвый путь стоит: {min}");
             Console.ReadKey(true);
+            Environment.Exit(0);
         }
     }
 
@@ -746,7 +750,6 @@ namespace dream
         }
         private bool isStart = false;
         private bool isEnd = false;
-        private bool passedEnd = false;
         private HashSet<Node> neighbors = new HashSet<Node>();
         private int neighborsCount = 0;
         private int[] colors = new int[4] { 0b0000, 0b0000, 0b0000, 0b0000 };
@@ -783,11 +786,6 @@ namespace dream
         {
             get { return isEnd; }
             set { isEnd = value; }
-        }
-        public bool PassedEnd
-        {
-            get { return passedEnd; }
-            set { passedEnd = value; }
         }
         public int NeighborsCount
         {
