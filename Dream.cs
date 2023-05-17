@@ -74,8 +74,46 @@ namespace dream
             {
                 for (int column = 0; column < Maze.GetUpperBound(1) + 1; column++)
                 {
+                    if (Maze[row, column] == 'X')
+                    {
+                        Console.BackgroundColor = ConsoleColor.White;
+                        Console.ForegroundColor = ConsoleColor.Black;
+                    }
+                    else if (Maze[row, column] == 'R')
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                    }
+                    else if (Maze[row, column] == 'G')
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+                    }
+                    else if (Maze[row, column] == 'B')
+                    {
+                        Console.ForegroundColor = ConsoleColor.Blue;
+                    }
+                    else if (Maze[row, column] == 'Y')
+                    {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                    }
                     Console.Write($"{Maze[row, column]} ");
+                    Console.BackgroundColor = ConsoleColor.Black;
+                    Console.ForegroundColor = ConsoleColor.White;
                 }
+
+                if (row == 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write($"  R: {R}");
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write($"  G: {G}");
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.Write($"  B: {B}");
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.Write($"  Y: {Y}");
+                    Console.BackgroundColor = ConsoleColor.Black;
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+
                 Console.WriteLine();
             }
         }
@@ -144,6 +182,21 @@ namespace dream
                     Console.BackgroundColor = ConsoleColor.Black;
                     Console.ForegroundColor = ConsoleColor.White;
                 }
+
+                if (row == 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write($"  R: {R}");
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write($"  G: {G}");
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.Write($"  B: {B}");
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.Write($"  Y: {Y}");
+                    Console.BackgroundColor = ConsoleColor.Black;
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+
                 Console.WriteLine();
             }
         }
@@ -306,18 +359,20 @@ namespace dream
                     if (columnIndex != 0) columnIndex--;
                     else columnIndex = column - 1;
                 }
-                else if (key.Key == ConsoleKey.Backspace)
+                else if (key.Key == ConsoleKey.Backspace || key.Key == ConsoleKey.Delete)
                 {
                     Maze[rowIndex, columnIndex] = '.';
                 }
-                else if (key.Key == ConsoleKey.S ||
+                else if ((key.Key == ConsoleKey.S ||
                          key.Key == ConsoleKey.E ||
                          key.Key == ConsoleKey.R ||
                          key.Key == ConsoleKey.Y ||
                          key.Key == ConsoleKey.X ||
                          key.Key == ConsoleKey.B || 
                          value == '.' ||
-                         key.Key == ConsoleKey.G)
+                         key.Key == ConsoleKey.G) &&
+                         key.Modifiers == 0 ||
+                         key.Modifiers == ConsoleModifiers.Shift)
                 {
                     if (value == 'E')
                     {
@@ -593,11 +648,12 @@ namespace dream
                 for (int i = 0; i < path.Way.Length - 1; i++)
                 {
                     Node node = path.Way[i];
+                    char value = Maze[node.Row, node.Column];
                     int colors = node.Colors[node.GetNeighborPosition(path.Way[i + 1])];
-                    if ((colors & 0b1000) == 0b1000) path.Red = true;
-                    if ((colors & 0b0100) == 0b0100) path.Green = true;
-                    if ((colors & 0b0010) == 0b0010) path.Blue = true;
-                    if ((colors & 0b0001) == 0b0001) path.Yellow = true;
+                    if ((colors & 0b1000) == 0b1000 || value == 'R') path.Red = true;
+                    if ((colors & 0b0100) == 0b0100 || value == 'G') path.Green = true;
+                    if ((colors & 0b0010) == 0b0010 || value == 'B') path.Blue = true;
+                    if ((colors & 0b0001) == 0b0001 || value == 'Y') path.Yellow = true;
                 }
             }
         }
@@ -627,7 +683,8 @@ namespace dream
                            Convert.ToInt32(path.Yellow) * petya.Y;
                 if (cost < min) min = cost;
             }
-            Console.WriteLine(min);
+            petya.PrintMaze();
+            Console.WriteLine($"\nСамый дешёвый путь стоит: {min}");
             Console.ReadKey(false);
         }
     }
