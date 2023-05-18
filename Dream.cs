@@ -516,10 +516,10 @@ namespace dream
                     {
                         if ((l == 'X' && r == 'X' && u != 'X' && d != 'X' ||
                              l != 'X' && r != 'X' && u == 'X' && d == 'X' ||
-                             l == '.' && r == '.' && u == '.' && ul == '.' && ur == '.' && d == 'X' && dl == 'X' && dr == 'X' && StartColumn != j && EndColumn != j ||
-                             l == '.' && r == '.' && d == '.' && dl == '.' && dr == '.' && u == 'X' && ul == 'X' && ur == 'X' && StartColumn != j && EndColumn != j ||
-                             l == '.' && u == '.' && d == '.' && dl == '.' && ul == '.' && r == 'X' && ur == 'X' && dr == 'X' && StartRow != i && EndRow != i ||
-                             r == '.' && u == '.' && d == '.' && dr == '.' && ur == '.' && l == 'X' && ul == 'X' && dl == 'X' && StartRow != i && EndRow != i) &&
+                             value == '.' && l != 'X' && r != 'X' && u != 'X' && ul != 'X' && ur != 'X' && StartColumn != j && EndColumn != j ||
+                             value == '.' && l != 'X' && r != 'X' && d != 'X' && dl != 'X' && dr != 'X' && StartColumn != j && EndColumn != j ||
+                             value == '.' && l != 'X' && u != 'X' && d != 'X' && dl != 'X' && ul != 'X' && StartRow != i && EndRow != i ||
+                             value == '.' && r != 'X' && u != 'X' && d != 'X' && dr != 'X' && ur != 'X' && StartRow != i && EndRow != i) &&
                             value != 'S' && value != 'E')
                         {
                             continue;
@@ -625,15 +625,15 @@ namespace dream
                     path.Way = stack.ToArray();
                     Paths.Add(Paths.Count, path);
                     stack.Pop();
-                    stack.Pop();
                     visited.Pop();
+                    node.PassedEnd = true;
                     continue;
                 }
 
                 bool hasNeighbors = false;
                 foreach (Node neighbor in node.Neighbors)
                 {
-                    if (!actualVisited.Contains(neighbor))
+                    if (!actualVisited.Contains(neighbor) && (!neighbor.IsEnd || !node.PassedEnd))
                     {
                         stack.Push(neighbor);
                         actualVisited.Add(neighbor);
@@ -750,6 +750,7 @@ namespace dream
         }
         private bool isStart = false;
         private bool isEnd = false;
+        private bool passedEnd = false;
         private HashSet<Node> neighbors = new HashSet<Node>();
         private int neighborsCount = 0;
         private int[] colors = new int[4] { 0b0000, 0b0000, 0b0000, 0b0000 };
@@ -786,6 +787,12 @@ namespace dream
         {
             get { return isEnd; }
             set { isEnd = value; }
+        }
+
+        public bool PassedEnd
+        {
+            get { return passedEnd; }
+            set { passedEnd = value; }
         }
         public int NeighborsCount
         {
